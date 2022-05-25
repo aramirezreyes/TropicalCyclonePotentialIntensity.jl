@@ -3,6 +3,10 @@ uuid = "3d638a7a-a2e4-42bc-a032-160bbf3719f9"
 authors = ["Argel Ramirez Reyes <aramirezreyes@ucdavis.edu> and contributors"]
 version = "0.1.0"
 
+[deps]
+NCDatasets = "85f8d34a-cbdd-5861-8df4-14fed0d494ab"
+Unitful = "1986cc42-f94f-5a68-af5c-568840ba703d"
+
 [compat]
 julia = "1"
 
