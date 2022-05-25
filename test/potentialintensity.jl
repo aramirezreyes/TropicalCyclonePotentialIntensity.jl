@@ -17,6 +17,6 @@
     #I will create a similar profile but with a perturbation to see what happens
 
     @test unit(get_buoyancy_of_lifted_parcel(tparcel,rparcel,pparcel,tabs[:,timeindex],r[:,timeindex],pres[:,timeindex])[1]) == u"K"
-    @info AvailablePotentialEnergyFramework.get_cape_and_outflow_temp_from_sounding(tparcel,rparcel,pparcel,tabs[:,timeindex],r[:,timeindex],pres[:,timeindex])
-    include(joinpath(@__DIR__,"emanuel_potential_intensity_wrapper.jl"))
-    @info get_cape(ustrip(tparcel),ustrip(rparcel), ustrip(pparcel), ustrip.(tabs[:,timeindex]), ustrip.(r[:,timeindex]), ustrip.(pres[:,timeindex]))
+    @info get_cape_and_outflow_temp_from_sounding(tparcel,rparcel,pparcel,tabs[:,timeindex],r[:,timeindex],pres[:,timeindex])
+#    include(joinpath(@__DIR__,"emanuel_potential_intensity_wrapper.jl"))
+#    @info get_cape(ustrip(tparcel),ustrip(rparcel), ustrip(pparcel), ustrip.(tabs[:,timeindex]), ustrip.(r[:,timeindex]), ustrip.(pres[:,timeindex]))
