@@ -15,11 +15,13 @@ export mixing_ratio_to_specific_humidity,
     get_virtual_temperature,
 ###Potential intensity
     get_buoyancy_of_lifted_parcel,
-    get_cape_and_outflow_temp_from_sounding
+    get_cape_and_outflow_temp_from_sounding,
+    get_minimum_pressure_of_tropical_cyclone
 
 include("physicalconstants.jl")
 include("physicsfunctions.jl")
-include("potentialintensity.jl")
 include("rootfinding.jl")
+include("potentialintensity.jl")
+
 
 end

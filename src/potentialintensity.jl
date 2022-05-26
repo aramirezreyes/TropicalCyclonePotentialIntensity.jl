@@ -55,23 +55,24 @@ end
 temperatures in kelvin
 
 """
-function get_minimum_pressure_of_tropical_cyclone(sea_surface_temp,sea_surface_pressure, pressure, temperature, mixing_ratio; ckovercd = 0.9, reversible_ascent=1, dissipative_heating = true)
+function get_minimum_pressure_of_tropical_cyclone(sea_surface_temperature,sea_surface_pressure, pressure, temperature, mixing_ratio; ck_over_cd = 0.9, reversible_ascent=1, dissipative_heating = true)
 
     initial_level_for_lifting = 1
     exponent_central_pressure = 2.0
     vreduc = 0.8
 
-    t0 = 230.0
+    t0 = 230.0u"K"
     vmax = 0.0
     pmin = 0.0
     ifl = 0 #what is this
-    saturation_vapor_pressure0=6.112.*exp(17.67*sea_surface_temperature/(243.5+sea_surface_temperature));
+    saturation_vapor_pressure0 = get_saturation_vapor_pressure(sea_surface_temperature)
     # initial values (for what?)
+    niter = 1
     ifl=1;
     NP=0;
-    min_pressure=970.0;
-    min_pressure_old=min_pressure;
-    min_pressure_neew=0.0;
+    min_pressure = 970.0u"hPa";
+    min_pressure_old = min_pressure;
+    min_pressure_new = 0.0u"hPa";
 #
 #   ***   Find environmental CAPE *** 
 #
@@ -80,37 +81,41 @@ function get_minimum_pressure_of_tropical_cyclone(sea_surface_temp,sea_surface_p
     pparcel=pressure[initial_level_for_lifting]
     cape_env, outflow_temp_env, index_level_of_neutral_buoyancy = get_cape_and_outflow_temp_from_sounding(tparcel,rparcel,pparcel,temperature,mixing_ratio,pressure)
 
-    while (abs(min_pressure_new-min_pressure_old)) > 0.2
+    while (abs(min_pressure_new-min_pressure_old)) > 0.2u"hPa"
 #
 #   ***  Find CAPE at radius of maximum winds   ***
 #
       tparcel=temperature[initial_level_for_lifting]
-      pparcel_approx=min(min_pressure,1000.0) #these two are the ones we are iterating over
+      pparcel_approx=min(min_pressure,1000.0u"hPa") #these two are the ones we are iterating over
       rparcel_approx = epsilon*mixing_ratio[initial_level_for_lifting]*sea_surface_pressure / (pparcel*(epsilon+mixing_ratio[initial_level_for_lifting]) - mixing_ratio[initial_level_for_lifting]*sea_surface_pressure) #what in the name of god is this? it is not documented
       cape_at_rmax, outflow_temp_at_rmax, index_level_of_neutral_buoyancy = get_cape_and_outflow_temp_from_sounding(tparcel,rparcel_approx,pparcel_approx,temperature,mixing_ratio,pressure);
 #
 #  ***  Find saturation CAPE at radius of maximum winds   ***
 #
       tparcel=sea_surface_temperature;
-      pparcel_sat=min(min_pressure,1000.0)
-      rparcel_sat=get_mixing_ratio(saturation_vapor_presure0,pparcel_approx)
+      pparcel_sat=min(min_pressure,1000.0u"hPa")
+      rparcel_sat=get_mixing_ratio(saturation_vapor_pressure0,pparcel_approx)
       saturation_cape_at_rmax, temp_outflow, intdex_lnb = get_cape_and_outflow_temp_from_sounding(tparcel,rparcel_sat,pparcel_sat,temperature,mixing_ratio,pressure);
       temp_ratio=sea_surface_temperature/temp_outflow;
        
 #
 #  ***  Initial estimate of minimum pressure   ***
 #
-        virtual_temp_parcel_approx=get_virtual_temperature(temperature[initial_level_for_lifting],mixing_ratio_parcel_approx)
-        virtual_temp_parcel_sst=get_virtual_temperature(sea_surface_temperature,specific_humidity_parcel_approx)
-        average_virtual_temp = 0.5.*(virtual_temperature_parcel_approx + virtual_temperature_parcel_sst);
+        virtual_temp_parcel_approx=get_virtual_temperature(temperature[initial_level_for_lifting],rparcel_approx)
+        virtual_temp_parcel_sst=get_virtual_temperature(sea_surface_temperature,rparcel_approx)
+        average_virtual_temp = 0.5.*(virtual_temp_parcel_approx + virtual_temp_parcel_sst);
 	CAT=cape_at_rmax-cape_env+0.5.*ck_over_cd.*temp_ratio.*(saturation_cape_at_rmax-cape_at_rmax);
-	CAT=max(CAT,0.0);
-	min_pressure_new=sea_surface_temperature*exp(-CAT./(287.04.*average_virtual_temp));
+	CAT=max(CAT,0.0u"J/kg");
+	min_pressure_new=sea_surface_pressure*exp(-CAT./(287.04.*average_virtual_temp) / 1u"J/kg/K");
 
 	min_pressure_old = min_pressure;
 	min_pressure = min_pressure_new;
+
+        vmax = sqrt(ck_over_cd*temp_ratio*(saturation_cape_at_rmax-cape_at_rmax))
 	niter = niter + 1;
+        @info niter
     end
+    return min_pressure, vmax
 end
 
 
