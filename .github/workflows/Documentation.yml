@@ -2,24 +2,7 @@ name: CI
 on:
   - push
   - pull_request
-  jobs:
-      name: Coverage
-      runs-on: ubuntu-latest
-      steps:
-        - uses: actions/checkout@v2
-        - uses: julia-actions/setup-julia@v1
-          with:
-            version: '1'
-        - run: |
-            julia --project=. -e '
-              import Pkg; Pkg.add("Documenter")
-              using Pkg
-              Pkg.develop(PackageSpec(path=pwd()))
-              Pkg.instantiate()'
-        - run: |
-            julia --project=. -e 'using Pkg; Pkg.test("TropicalCyclonePotentialIntensity", coverage=true)'
-        - after_success: |
-            julia -e 'import Pkg; cd(Pkg.dir("TropicalCyclonePotentialIntensity")); Pkg.add("Coverage"); using Coverage; Codecov.submit(Codecov.process_folder())' 
+jobs:     
   docs:
     name: Documentation
     runs-on: ubuntu-latest
@@ -40,7 +23,18 @@ on:
             using Documenter: doctest
             using TropicalCyclonePotentialIntensity
             doctest(TropicalCyclonePotentialIntensity)'
-      - run: julia --project=docs docs/make.jl
+      - run: 
+          julia --project=docs docs/make.jl
+      - run: |
+          julia --project=. -e '
+            import Pkg; Pkg.add("Documenter")
+            using Pkg
+            Pkg.develop(PackageSpec(path=pwd()))
+            Pkg.instantiate()'
+      - run: |
+          julia --project=. -e 'using Pkg; Pkg.test("TropicalCyclonePotentialIntensity", coverage=true)'
+      - run: |
+          julia -e 'import Pkg; cd(Pkg.dir("TropicalCyclonePotentialIntensity")); Pkg.add("Coverage"); using Coverage; Codecov.submit(Codecov.process_folder())' 
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           DOCUMENTER_KEY: ${{ secrets.DOCUMENTER_KEY }}
