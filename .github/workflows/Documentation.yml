@@ -3,6 +3,23 @@ on:
   - push
   - pull_request
 jobs:
+  coverage:
+   runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: julia-actions/setup-julia@v1
+        with:
+          version: '1'
+      - run: |
+          julia --project=. -e '
+            import Pkg; Pkg.add("Documenter")
+            using Pkg
+            Pkg.develop(PackageSpec(path=pwd()))
+            Pkg.instantiate()'
+      - run: |
+          julia --project=. -e 'using Pkg; Pkg.test("MyPkg", coverage=true)'
+      - after_success:
+          julia -e 'using Pkg; cd(Pkg.dir("TropicalCyclonePotentialIntensity")); Pkg.add("Coverage"); using Coverage; Codecov.submit(Codecov.process_folder())' 
   docs:
     name: Documentation
     runs-on: ubuntu-latest
