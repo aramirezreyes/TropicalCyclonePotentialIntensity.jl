@@ -10,7 +10,7 @@ function get_buoyancy_of_lifted_parcel(tparcel,rparcel,pparcel,t,r,p,ptop=50*uni
     parcel_sat_vapor_pressure = get_saturation_vapor_pressure(tparcel)
     parcel_vapor_pressure = get_partial_vapor_pressure(rparcel,pparcel)
     parcel_rh = min(parcel_vapor_pressure/parcel_sat_vapor_pressure  , 1.0)
-    parcel_specific_entropy = get_specific_entropy(tparcel,rparcel,pparcel)
+    parcel_specific_entropy = get_specific_entropy(tparcel,rparcel,pparcel; adjust_for_ice_phase = true)
     #@info parcel_specific_entropy
     #@info parcel_vapor_pressure
     #@info parcel_sat_vapor_pressure
