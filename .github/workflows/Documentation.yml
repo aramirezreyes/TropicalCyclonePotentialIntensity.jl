@@ -22,11 +22,10 @@ jobs:
             import Pkg; Pkg.add("Documenter")
             using Documenter: doctest
             using TropicalCyclonePotentialIntensity
+            Pkg.test("TropicalCyclonePotentialIntensity", coverage=true)
             doctest(TropicalCyclonePotentialIntensity)'
       - run: 
           julia --project=docs docs/make.jl
-      - run: |
-          julia --project=. -e 'using Pkg; Pkg.test("TropicalCyclonePotentialIntensity", coverage=true)'
       - run: |
           julia -e 'import Pkg; cd(Pkg.dir("TropicalCyclonePotentialIntensity")); Pkg.add("Coverage"); using Coverage; Codecov.submit(Codecov.process_folder())' 
         env:
