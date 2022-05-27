@@ -17,9 +17,17 @@ rparcel = r[1,timeindex]
 #I will create a similar profile but with a perturbation to see what happens
 
 @test unit(get_buoyancy_of_lifted_parcel(tparcel,rparcel,pparcel,tabs[:,timeindex],r[:,timeindex],pres[:,timeindex])[1]) == u"K"
-@info get_cape_and_outflow_temp_from_sounding(tparcel,rparcel,pparcel,tabs[:,timeindex],r[:,timeindex],pres[:,timeindex])
-@info get_minimum_pressure_of_tropical_cyclone(tparcel, pparcel, pres[:,timeindex], tabs[:,timeindex], r[:,timeindex])
+
+cape_this_implementation, temp_outflow_this_implementation, index_outflow_this_implementation = get_cape_and_outflow_temp_from_sounding(tparcel,rparcel,pparcel,tabs[:,timeindex],r[:,timeindex],pres[:,timeindex])
+
 
 include(joinpath(@__DIR__,"emanuel_potential_intensity_wrapper.jl"))
-@info get_cape(ustrip(tparcel),ustrip(rparcel), ustrip(pparcel), ustrip.(tabs[:,timeindex]), ustrip.(r[:,timeindex]), ustrip.(pres[:,timeindex]))
-@info get_pcmin( ustrip(tparcel) .- 273.15f0,ustrip(pparcel),ustrip.(pres[:,timeindex]),ustrip.(tabs[:,timeindex]) .- 273.15f0, 1f3.*ustrip.(r[:,timeindex]) )
+cape_fortan_implementation, temp_outflow_fortran_implementation = get_cape(ustrip(tparcel),ustrip(rparcel), ustrip(pparcel), ustrip.(tabs[:,timeindex]), ustrip.(r[:,timeindex]), ustrip.(pres[:,timeindex]))
+
+@test_broken isapprox(cape_this_implementation, cape_fortran_implementation*u"J/kg", rtol = 0.1)
+@test isapprox(temp_outflow_this_implementation, temp_outflow_fortran_implementation*u"K", rtol = 0.1)
+
+min_pres_this_implementation, max_speed_this_implementation = get_minimum_pressure_of_tropical_cyclone(tparcel, pparcel, pres[:,timeindex], tabs[:,timeindex], r[:,timeindex])
+min_pres_fortran_implementation, max_speed_fortran_implementation = get_pcmin( ustrip(tparcel) .- 273.15f0,ustrip(pparcel),ustrip.(pres[:,timeindex]),ustrip.(tabs[:,timeindex]) .- 273.15f0, 1f3.*ustrip.(r[:,timeindex]) ) 
+@test isapprox(min_pres_this_implementation, min_pres_fortran_implementation*u"hPa", rtol = 0.1)
+@test isapprox(max_speed_this_implementation, max_speed_fortran_implementation*u"m/s", rtol = 0.1)
