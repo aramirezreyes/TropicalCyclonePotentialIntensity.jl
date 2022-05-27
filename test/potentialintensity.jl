@@ -20,6 +20,6 @@ rparcel = r[1,timeindex]
 @info get_cape_and_outflow_temp_from_sounding(tparcel,rparcel,pparcel,tabs[:,timeindex],r[:,timeindex],pres[:,timeindex])
 @info get_minimum_pressure_of_tropical_cyclone(tparcel, pparcel, pres[:,timeindex], tabs[:,timeindex], r[:,timeindex])
 
-#include(joinpath(@__DIR__,"emanuel_potential_intensity_wrapper.jl"))
-#@info get_cape(ustrip(tparcel),ustrip(rparcel), ustrip(pparcel), ustrip.(tabs[:,timeindex]), ustrip.(r[:,timeindex]), ustrip.(pres[:,timeindex]))
-#@info get_pcmin( ustrip(tparcel) .- 273,ustrip(pparcel),ustrip.(pres[:,timeindex]),ustrip.(tabs[:,timeindex]) .- 273, 1f3.*ustrip.(r[:,timeindex]) )
+include(joinpath(@__DIR__,"emanuel_potential_intensity_wrapper.jl"))
+@info get_cape(ustrip(tparcel),ustrip(rparcel), ustrip(pparcel), ustrip.(tabs[:,timeindex]), ustrip.(r[:,timeindex]), ustrip.(pres[:,timeindex]))
+@info get_pcmin( ustrip(tparcel) .- 273.15f0,ustrip(pparcel),ustrip.(pres[:,timeindex]),ustrip.(tabs[:,timeindex]) .- 273.15f0, 1f3.*ustrip.(r[:,timeindex]) )
