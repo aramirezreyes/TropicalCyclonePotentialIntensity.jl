@@ -2,7 +2,6 @@ module TropicalCyclonePotentialIntensity
 
 # Write your package code here.
 using Unitful: @u_str, unit, ustrip, Quantity
-using NCDatasets: Dataset
 
 export mixing_ratio_to_specific_humidity,
     specific_humidity_to_mixing_ratio,

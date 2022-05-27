@@ -1,33 +1,28 @@
-pres = Dataset(joinpath(@__DIR__,"testfiles/thermoprofile.nc")) do ds 
-    1u"hPa" .* variable(ds, "PRES")[:,:]
-end
-tabs = Dataset(joinpath(@__DIR__,"testfiles/thermoprofile.nc")) do ds 
-    1u"K" .* variable(ds, "TABS")[:,:]
-end
-qv = 1f-3u"kg/g" .* 1u"g/kg" .* Dataset(joinpath(@__DIR__,"testfiles/thermoprofile.nc")) do ds 
-    variable(ds, "QV")[:,:] #was originally in g/kg
-end
-@info size(pres) size(qv) size(tabs)
+pres = 1f0u"hPa" .* Float32.(readdlm("pressure_in_hpa")[:])
+tabs = 1f0u"K" .* Float32.(readdlm("tabs_in_Kelvin")[:])
+qv = 1f0u"kg/kg" .* Float32.(readdlm("specific_humidity_in_kgperkg")[:])
 r = specific_humidity_to_mixing_ratio.(qv)
-timeindex = 1200
-pparcel = pres[1,timeindex]
-tparcel = tabs[1,timeindex]
-rparcel = r[1,timeindex]
 
-#I will create a similar profile but with a perturbation to see what happens
+pparcel = pres[1]
+tparcel = tabs[1]
+rparcel = r[1]
 
-@test unit(get_buoyancy_of_lifted_parcel(tparcel,rparcel,pparcel,tabs[:,timeindex],r[:,timeindex],pres[:,timeindex])[1]) == u"K"
+#With these value, the fortran implementation yields:
+# include(joinpath(@__DIR__,"emanuel_potential_intensity_wrapper.jl"))
+# cape_fortan_implementation, temp_outflow_fortran_implementation = get_cape(ustrip(tparcel),ustrip(rparcel), ustrip(pparcel), ustrip.(tabs), ustrip.(r), ustrip.(pres))
 
-cape_this_implementation, temp_outflow_this_implementation, index_outflow_this_implementation = get_cape_and_outflow_temp_from_sounding(tparcel,rparcel,pparcel,tabs[:,timeindex],r[:,timeindex],pres[:,timeindex])
+# min_pres_fortran_implementation, max_speed_fortran_implementation = get_pcmin( ustrip(tparcel) .- 273.15f0,ustrip(pparcel),ustrip.(pres),ustrip.(tabs) .- 273.15f0, 1f3.*ustrip.(r)) 
 
 
-#include(joinpath(@__DIR__,"emanuel_potential_intensity_wrapper.jl"))
-#cape_fortan_implementation, temp_outflow_fortran_implementation = get_cape(ustrip(tparcel),ustrip(rparcel), ustrip(pparcel), ustrip.(tabs[:,timeindex]), ustrip.(r[:,timeindex]), ustrip.(pres[:,timeindex]))
+cape_fortan_implementation, temp_outflow_fortran_implementation = (1150.0933f0, 237.68825f0)
+min_pres_fortran_implementation, max_speed_fortran_implementation = (988.6367f0, 28.624588f0)
+cape, temp_outflow, index_outflow = get_cape_and_outflow_temp_from_sounding(tparcel,rparcel,pparcel,tabs,r,pres)
+min_pres, max_speed = get_minimum_pressure_of_tropical_cyclone(tparcel, pparcel, pres, tabs, r)
 
-#@test_broken isapprox(cape_this_implementation, cape_fortran_implementation*u"J/kg", rtol = 0.01)
-#@test_broken isapprox(temp_outflow_this_implementation, temp_outflow_fortran_implementation*u"K", rtol = 0.01)
-
-#min_pres_this_implementation, max_speed_this_implementation = get_minimum_pressure_of_tropical_cyclone(tparcel, pparcel, pres[:,timeindex], tabs[:,timeindex], r[:,timeindex])
-#min_pres_fortran_implementation, max_speed_fortran_implementation = get_pcmin( ustrip(tparcel) .- 273.15f0,ustrip(pparcel),ustrip.(pres[:,timeindex]),ustrip.(tabs[:,timeindex]) .- 273.15f0, 1f3.*ustrip.(r[:,timeindex]) ) 
-#@test isapprox(min_pres_this_implementation, min_pres_fortran_implementation*u"hPa", rtol = 0.01)
-#@test_broken isapprox(max_speed_this_implementation, max_speed_fortran_implementation*u"m/s", rtol = 0.01)
+@testset "Potential Intensity" begin
+    @test unit(get_buoyancy_of_lifted_parcel(tparcel,rparcel,pparcel,tabs,r,pres)[1]) == u"K"
+    @test_broken isapprox(cape, cape_fortran_implementation*u"J/kg", rtol = 0.01)
+    @test_broken isapprox(temp_outflow, temp_outflow_fortran_implementation*u"K", rtol = 0.01)
+    @test isapprox(min_pres, min_pres_fortran_implementation*u"hPa", rtol = 0.01)
+    @test_broken isapprox(max_speed, max_speed_fortran_implementation*u"m/s", rtol = 0.01)
+end
