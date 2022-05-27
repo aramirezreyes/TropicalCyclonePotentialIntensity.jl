@@ -27,7 +27,7 @@ jobs:
       - run: 
           julia --project=docs docs/make.jl
       - run: |
-          julia -e 'import Pkg; cd(Pkg.dir("TropicalCyclonePotentialIntensity")); Pkg.add("Coverage"); using Coverage; Codecov.submit(Codecov.process_folder())' 
+          julia -e 'import Pkg; Pkg.add("Coverage"); using Coverage; Codecov.submit(Codecov.process_folder())' 
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           DOCUMENTER_KEY: ${{ secrets.DOCUMENTER_KEY }}
