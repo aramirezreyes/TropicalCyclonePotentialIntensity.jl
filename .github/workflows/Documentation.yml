@@ -17,9 +17,9 @@ jobs:
             Pkg.develop(PackageSpec(path=pwd()))
             Pkg.instantiate()'
       - run: |
-          julia --project=. -e 'using Pkg; Pkg.test("MyPkg", coverage=true)'
-      - after_success:
-          julia -e 'using Pkg; cd(Pkg.dir("TropicalCyclonePotentialIntensity")); Pkg.add("Coverage"); using Coverage; Codecov.submit(Codecov.process_folder())' 
+          julia --project=. -e 'using Pkg; Pkg.test("TropicalCyclonePotentialIntensity", coverage=true)'
+      - after_success: |
+          julia -e 'import Pkg; cd(Pkg.dir("TropicalCyclonePotentialIntensity")); Pkg.add("Coverage"); using Coverage; Codecov.submit(Codecov.process_folder())' 
   docs:
     name: Documentation
     runs-on: ubuntu-latest
