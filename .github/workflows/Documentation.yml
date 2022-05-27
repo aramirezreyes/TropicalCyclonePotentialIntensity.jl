@@ -26,12 +26,6 @@ jobs:
       - run: 
           julia --project=docs docs/make.jl
       - run: |
-          julia --project=. -e '
-            import Pkg; Pkg.add("Documenter")
-            using Pkg
-            Pkg.develop(PackageSpec(path=pwd()))
-            Pkg.instantiate()'
-      - run: |
           julia --project=. -e 'using Pkg; Pkg.test("TropicalCyclonePotentialIntensity", coverage=true)'
       - run: |
           julia -e 'import Pkg; cd(Pkg.dir("TropicalCyclonePotentialIntensity")); Pkg.add("Coverage"); using Coverage; Codecov.submit(Codecov.process_folder())' 
