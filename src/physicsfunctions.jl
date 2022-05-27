@@ -87,6 +87,7 @@ end
 Receive temperature in Kelvin, water vapor mixing ratio (unitless g/g) and pressure (hPa) and compute the specific entropy of a parcel using equation in Emmanuel's (E94, EQN. 4.5.9)
 """
 function get_specific_entropy(temperature,mixing_ratio,pressure ; adjust_for_ice_phase = false)
+    # Adjust for ice phase is a modified value of liquid water specific heat capacity to compensate for the lack of explicit ice phase when lifting a parcel(Personal communication with Kerry Emanuel on April 22 2022 - Argel Ramirez Reyes
     alv = Liquidwater.Lv + (Watervapor.cp - Dryair.cp)*(temperature - 273.15f0u"K")
     adjusted_cl = adjust_for_ice_phase ? Liquidwater.cp - 1690u"J/kg/K" : Liquidwater.cp
     vapor_pressure = get_partial_vapor_pressure(mixing_ratio,pressure)
@@ -124,7 +125,7 @@ function ∂specific_entropy_∂temp(temperature, mixing_ratio)
 end
 
 function ∂specific_entropy_∂temp_emanuel(temperature, mixing_ratio, pressure)
-    CL = Liquidwater.cp - 1690.0f0u"J/kg/K" # This is a modified value of liquid water specific heat capacity to compensate for the lack of explicit ice phase (Personal communication with Kerry Emanuel
+    CL = Liquidwater.cp - 1690.0f0u"J/kg/K" # This is a modified value of liquid water specific heat capacity to compensate for the lack of explicit ice phase when lifting a parcel(Personal communication with Kerry Emanuel on April 22 2022 - Argel Ramirez Reyes
     alv = Liquidwater.Lv + (Watervapor.cp - CL)*(temperature - 273.15u"K")
     saturation_vapor_pressure = get_saturation_vapor_pressure(temperature)
     saturation_mixing_ratio = get_mixing_ratio(saturation_vapor_pressure, pressure)
