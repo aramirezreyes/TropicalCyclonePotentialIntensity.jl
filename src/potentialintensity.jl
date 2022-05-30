@@ -11,9 +11,9 @@ function get_buoyancy_of_lifted_parcel(tparcel,rparcel,pparcel,t,r,p,ptop=50*uni
     parcel_vapor_pressure = get_partial_vapor_pressure(rparcel,pparcel)
     parcel_rh = min(parcel_vapor_pressure/parcel_sat_vapor_pressure  , 1.0)
     parcel_specific_entropy = get_specific_entropy(tparcel,rparcel,pparcel; adjust_for_ice_phase = true)
-    #@info parcel_specific_entropy
-    #@info parcel_vapor_pressure
-    #@info parcel_sat_vapor_pressure
+    @show parcel_specific_entropy
+    @show parcel_vapor_pressure
+    @show parcel_sat_vapor_pressure
     parcel_lcl = get_lifted_condensation_level(tparcel,parcel_rh,pparcel)
     #@info parcel_lcl
 #    @show parcel_lcl
@@ -93,12 +93,19 @@ function get_minimum_pressure_of_tropical_cyclone(sea_surface_temperature,sea_su
         #
         #  ***  Estimate of pressure at radius of maximum winds  ***
         #
-        specific_humidity_lowest_level = mixing_ratio_to_specific_humidity(mixing_ratio[initial_level_for_lifting])
-        specific_humidity_sat = mixing_ratio_to_specific_humidity(rparcel_sat)
-        virtual_temp_lowest_level=get_virtual_temperature(temperature[initial_level_for_lifting],specific_humidity_lowest_level , specific_humidity_lowest_level )
-        virtual_temp_parcel_sst=get_virtual_temperature(sea_surface_temperature,specific_humidity_sat, specific_humidity_sat)
+        mixing_ratio_lowest_level = mixing_ratio[initial_level_for_lifting]
+        virtual_temp_lowest_level=get_virtual_temperature(temperature[initial_level_for_lifting],mixing_ratio_lowest_level , mixing_ratio_lowest_level )
+        virtual_temp_parcel_sst=get_virtual_temperature(sea_surface_temperature,rparcel_sat, rparcel_sat)
         average_virtual_temp = 0.5 * (virtual_temp_lowest_level + virtual_temp_parcel_sst)
+        #@show virtual_temp_lowest_level
+        #@show average_virtual_temp
+        #@show ck_over_cd
+        #@show temp_ratio
+        #@show cape_at_rmax
+        #@show saturation_cape_at_rmax
+        #@show cape_env
         CAT=cape_at_rmax-cape_env + 0.5 * ck_over_cd * temp_ratio *(saturation_cape_at_rmax - cape_at_rmax)
+        #@info CAT
         CAT=max(CAT,0.0u"J/kg")
         
         pressure_at_rmax_old = pressure_at_rmax
@@ -109,6 +116,7 @@ function get_minimum_pressure_of_tropical_cyclone(sea_surface_temperature,sea_su
 
     reduction_factor=0.5(1.0 + 1.0/exponent_central_pressure)
     CAT=(cape_at_rmax-cape_env)+reduction_factor*ck_over_cd*temp_ratio*(saturation_cape_at_rmax-cape_at_rmax)
+    #@info CAT
     CAT=max(CAT,0.0u"J/kg")
     
     # Calculate the minimum pressure at the eye of the storm
@@ -137,5 +145,9 @@ function get_cape_and_outflow_temp_from_sounding(tparcel,rparcel,pparcel,t,r,p,p
         negative_area -= min(area,0.0*unit(area))
     end
     outflow_temp = t[level_neutral_buoyancy]
+    #Add buoyancy of parcel with respect to first level?
+    parcel_buoyancy_area = Dryair.R *(pparcel - p[1])/(pparcel + p[1])
+    positive_area += parcel_buoyancy_area*max(buoyancy_profile[1],0.0*unit(buoyancy_profile[1]))
+    negative_area -= parcel_buoyancy_area*min(buoyancy_profile[1],0.0*unit(buoyancy_profile[1]))
     return positive_area - negative_area, outflow_temp, level_neutral_buoyancy
 end
