@@ -23,5 +23,6 @@
     @test get_virtual_temperature(300u"K",0u"g/kg") == 300u"K"
     @test get_virtual_temperature(300u"K",0u"g/kg") == 300u"K"
     @test get_virtual_temperature(300u"K",10u"g/kg") > 300u"K"
-
+    @test get_virtual_temperature(300,mixing_ratio_to_specific_humidity(0.10)) ≈ get_virtual_temperature(300,0.10,0.10)
+    @test get_virtual_temperature(300,0.10) ≈ get_virtual_temperature(300,specific_humidity_to_mixing_ratio(0.10),specific_humidity_to_mixing_ratio(0.10))
 end

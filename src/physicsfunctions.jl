@@ -17,21 +17,22 @@ end
 """
     get_virtual_temperature(temperature, specific_humidity)
 Compute virtual temperature from temperature and specific humidity.
+Receive temperature (K) and specific humidity (unitless kg/kg) and compute the virtual temperature
 """
 function get_virtual_temperature(temperature, specific_humidity)
-    return (one(temperature) + one(temperature)/1000*epsilon*specific_humidity)*temperature
+    return temperature*(one(specific_humidity) + specific_humidity*(one(specific_humidity)/epsilon - one(specific_humidity)))
 end
 
 function get_virtual_temperature(temperature :: Quantity, specific_humidity :: Quantity)
-    return (one(temperature) + one(temperature)/1000*epsilon*specific_humidity)*temperature
+    return temperature*(one(specific_humidity) + specific_humidity*(one(specific_humidity)/epsilon - one(specific_humidity)))
 end
 
 """
     get_virtual_temperature(temperature,mixing_ratio_total_water,mixing_ratio_water_vapor)
-Receive temperature (K) and mixing ratios of total water and water vapor (unitless g/g) and compute the virtual temperature
+Receive temperature (K) and mixing ratios of total water and water vapor (unitless kg/kg) and compute the virtual temperature
 """
 function get_virtual_temperature(temperature,mixing_ratio_total_water,mixing_ratio_water_vapor)
-    return temperature*(1 + mixing_ratio_water_vapor/epsilon)/(1 + mixing_ratio_total_water)
+    return temperature*(one(mixing_ratio_water_vapor) + mixing_ratio_water_vapor/epsilon)/(1 + mixing_ratio_total_water)
 end
 
 """
@@ -48,7 +49,7 @@ end
 Take a mixing ratio (unitless g/g) and return a specific humidity
 """
 function mixing_ratio_to_specific_humidity(mixing_ratio)
-    return q = mixing_ratio / (1 + mixing_ratio)
+    return specific_humidity = mixing_ratio / (1 + mixing_ratio)
 end
 
 

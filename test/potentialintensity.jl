@@ -14,7 +14,7 @@ rparcel = r[1]
 # min_pres_fortran_implementation, max_speed_fortran_implementation = get_pcmin( ustrip(tparcel) .- 273.15f0,ustrip(pparcel),ustrip.(pres),ustrip.(tabs) .- 273.15f0, 1f3.*ustrip.(r)) 
 
 
-cape_fortan_implementation, temp_outflow_fortran_implementation = (1150.0933f0, 237.68825f0)
+cape_fortran_implementation, temp_outflow_fortran_implementation = (1150.0933f0, 237.68825f0)
 min_pres_fortran_implementation, max_speed_fortran_implementation = (988.6367f0, 28.624588f0)
 cape, temp_outflow, index_outflow = get_cape_and_outflow_temp_from_sounding(tparcel,rparcel,pparcel,tabs,r,pres)
 min_pres, max_speed = get_minimum_pressure_of_tropical_cyclone(tparcel, pparcel, pres, tabs, r)
