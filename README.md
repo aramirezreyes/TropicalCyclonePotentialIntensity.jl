@@ -1,5 +1,7 @@
 # TropicalCyclonePotentialIntensity
 
+
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.6600862.svg)](https://doi.org/10.5281/zenodo.6600862)
 [![Stable](https://img.shields.io/badge/docs-stable-blue.svg)](http://www.argelramirezreyes.com/TropicalCyclonePotentialIntensity.jl/dev/)
 [![Dev](https://img.shields.io/badge/docs-dev-blue.svg)](http://www.argelramirezreyes.com/TropicalCyclonePotentialIntensity.jl/dev/)
 [![Coverage](https://codecov.io/gh/aramirezreyes/TropicalCyclonePotentialIntensity.jl/branch/main/graph/badge.svg)](https://codecov.io/gh/aramirezreyes/TropicalCyclonePotentialIntensity.jl)
@@ -35,7 +37,11 @@ This package uses [Unitful.jl](https://github.com/PainterQubits/Unitful.jl) to m
 
 This package is under development by Argel Ramírez Reyes. It is definitely not perfect. Bugs are expected as this has not been widely tested. Bug reports or collaborations are highly appreciated.
 
+# Cite as:
 
-### Main reference
+Ramírez Reyes, Argel. (2022). TropicalCyclonePotentialIntensity.jl (v0.2.0). Zenodo. https://doi.org/10.5281/zenodo.6600862
+
+
+### Based on
 
 Gilford, D. M., 2021: pyPI (v1.3): Tropical Cyclone Potential Intensity Calculations in Python. Geoscientific Model Development, 14, 2351–2369, https://doi.org/10.5194/gmd-14-2351-2021.
