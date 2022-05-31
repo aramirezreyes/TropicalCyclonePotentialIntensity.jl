@@ -17,15 +17,15 @@ tparcel_nu = tabs_nu[1]
 rparcel_nu = r_nu[1]
 
 #With these value, the fortran implementation yields:
-include(joinpath(@__DIR__,"emanuel_potential_intensity_wrapper.jl"))
-cape_fortran_implementation, temp_outflow_fortran_implementation = get_cape(ustrip(tparcel),ustrip(rparcel), ustrip(pparcel), ustrip.(tabs), ustrip.(r), ustrip.(pres))
-@show cape_fortran_implementation, temp_outflow_fortran_implementation 
+# include(joinpath(@__DIR__,"emanuel_potential_intensity_wrapper.jl"))
+# cape_fortran_implementation, temp_outflow_fortran_implementation = get_cape(ustrip(tparcel),ustrip(rparcel), ustrip(pparcel), ustrip.(tabs), ustrip.(r), ustrip.(pres))
+# @show cape_fortran_implementation, temp_outflow_fortran_implementation 
 
-min_pres_fortran_implementation, max_speed_fortran_implementation = get_pcmin( ustrip(tparcel) .- 273.15f0,ustrip(pparcel),ustrip.(pres),ustrip.(tabs) .- 273.15f0, 1f3.*ustrip.(r)) 
-@show min_pres_fortran_implementation, max_speed_fortran_implementation
+# min_pres_fortran_implementation, max_speed_fortran_implementation = get_pcmin( ustrip(tparcel) .- 273.15f0,ustrip(pparcel),ustrip.(pres),ustrip.(tabs) .- 273.15f0, 1f3.*ustrip.(r)) 
+# @show min_pres_fortran_implementation, max_speed_fortran_implementation
 
-#cape_fortran_implementation, temp_outflow_fortran_implementation = (1106.4801f0, 240.90143f0)
-#min_pres_fortran_implementation, max_speed_fortran_implementation = (991.1094f0, 26.201181f0)
+cape_fortran_implementation, temp_outflow_fortran_implementation = (1106.4801f0, 240.90143f0)
+min_pres_fortran_implementation, max_speed_fortran_implementation = (991.1094f0, 26.201181f0)
 cape, temp_outflow, index_outflow = get_cape_and_outflow_temp_from_sounding(tparcel,rparcel,pparcel,tabs,r,pres)
 min_pres, max_speed = get_potential_intensity_of_tropical_cyclone(tparcel, pparcel, pres, tabs, r)
 
