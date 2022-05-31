@@ -11,7 +11,7 @@ function get_buoyancy_of_lifted_parcel(tparcel, rparcel, pparcel, t, r, p, ptop=
     p = p[begin:n_valid_levels]
     t = t[begin:n_valid_levels]
     r = r[begin:n_valid_levels]
-    tvirtual_diff_parcel_env = similar(t)
+    tvirtual_diff_parcel_env = zero(t)
     parcel_sat_vapor_pressure = get_saturation_vapor_pressure(tparcel)
     parcel_vapor_pressure = get_partial_vapor_pressure(rparcel,pparcel)
     parcel_rh = min(parcel_vapor_pressure/parcel_sat_vapor_pressure  , 1.0)
@@ -41,7 +41,7 @@ function get_buoyancy_of_lifted_parcel(tparcel, rparcel, pparcel, t, r, p, ptop=
 end
 
 function get_buoyancy_of_lifted_parcel(tparcel :: Real, rparcel :: Real ,pparcel :: Real, t :: Array{ <: Real} ,r :: Array{ <: Real},p :: Array{ <: Real}, ptop=59)
-    ustrip.(get_buoyancy_of_lifted_parcel(1u"K" * tparcel , 1u"kg/kg" * rparcel ,1u"hPa" * pparcel, 1u"K" .* t , 1u"kg/kg" .* r, 1u"hPa" .* p, 1u"hPa" * ptop ))
+    ustrip.(get_buoyancy_of_lifted_parcel(u"K"*tparcel , u"kg/kg" * rparcel ,u"hPa" * pparcel, u"K" .* t , u"kg/kg" .* r, u"hPa" .* p, u"hPa" * ptop ))
 end
 
 
@@ -128,7 +128,7 @@ function get_potential_intensity_of_tropical_cyclone(sea_surface_temperature,sea
 end
 
 function get_potential_intensity_of_tropical_cyclone(sea_surface_temperature :: Real,sea_surface_pressure :: Real, pressure :: Array{<: Real}, temperature :: Array{<: Real}, mixing_ratio :: Array{<: Real}; ck_over_cd = 0.9, reversible_ascent=true, dissipative_heating = true, vreduc = 0.8)
-    return ustrip.(get_potential_intensity_of_tropical_cyclone(1u"K" * sea_surface_temperature, 1u"hPa" * sea_surface_pressure, 1u"hPa" .* pressure, 1u"K" .* temperature, 1u"kg/kg" .* mixing_ratio; ck_over_cd, reversible_ascent, dissipative_heating, vreduc))
+    return ustrip.(get_potential_intensity_of_tropical_cyclone(u"K" * sea_surface_temperature, u"hPa" * sea_surface_pressure, u"hPa" .* pressure, u"K" .* temperature, u"kg/kg" .* mixing_ratio; ck_over_cd, reversible_ascent, dissipative_heating, vreduc))
 end
 
 """
@@ -140,7 +140,7 @@ end
     p Array{<: Real}, ptop=50u"hPa")
 Compute cape, outflow temperature and index of neutral buoyancy from thermodynamic profiles.
 """
-function get_cape_and_outflow_temp_from_sounding(tparcel, rparcel, pparcel, t, r, p, ptop=50u"hPa")
+function get_cape_and_outflow_temp_from_sounding(tparcel, rparcel, pparcel, t, r, p, ptop=59u"hPa")
     buoyancy_profile = get_buoyancy_of_lifted_parcel(tparcel,rparcel,pparcel,t,r,p,ptop)
     negative_area=0.0*unit(buoyancy_profile[1]*Dryair.R)
     positive_area=0.0*unit(buoyancy_profile[1]*Dryair.R)
@@ -166,6 +166,6 @@ function get_cape_and_outflow_temp_from_sounding(tparcel, rparcel, pparcel, t, r
 end
 
 
-function get_cape_and_outflow_temp_from_sounding(tparcel :: Real,rparcel :: Real,pparcel :: Real,t :: Array{<: Real},r :: Array{<: Real},p :: Array{<: Real},ptop=50)
-    ustrip.(get_cape_and_outflow_temp_from_sounding(1u"K" * tparcel,1u"kg/kg" * rparcel,1u"hPa" * pparcel, 1u"K" .* t, 1u"kg/kg" .*r,1u"hPa" .* p,1u"hPa" * ptop))
+function get_cape_and_outflow_temp_from_sounding(tparcel :: Real,rparcel :: Real,pparcel :: Real,t :: Array{<: Real},r :: Array{<: Real},p :: Array{<: Real},ptop=59)
+    ustrip.(get_cape_and_outflow_temp_from_sounding(u"K" * tparcel,u"kg/kg" * rparcel,u"hPa" * pparcel, u"K" .* t, u"kg/kg" .*r,u"hPa" .* p,u"hPa" * ptop))
 end
