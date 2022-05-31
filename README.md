@@ -7,7 +7,7 @@
 [![Coverage](https://codecov.io/gh/aramirezreyes/TropicalCyclonePotentialIntensity.jl/branch/main/graph/badge.svg)](https://codecov.io/gh/aramirezreyes/TropicalCyclonePotentialIntensity.jl)
 
 # TropicalCyclonePotentialIntensity.jl
-This package implements the functions of [Daniel Gliford](https://github.com/dgilford)'s [TCPyPI](https://github.com/dgilford/tcpyPI/blob/master/tcpyPI/pi.py) for the [JuliaLanguage](https://github.com/JuliaLang/julia). This are widely used routines in the Tropical Cyclone community. I hope this helps widen the atmospheric science ecosystem for Julia.
+This package implements the functions of [Daniel Gilford](https://github.com/dgilford)'s [TCPyPI](https://github.com/dgilford/tcpyPI/blob/master/tcpyPI/pi.py) for the [JuliaLanguage](https://github.com/JuliaLang/julia). This are widely used routines in the Tropical Cyclone community. I hope this helps widen the atmospheric science ecosystem for Julia.
 
 # Installation
 
