@@ -15,12 +15,14 @@ export mixing_ratio_to_specific_humidity,
 ###Potential intensity
     get_buoyancy_of_lifted_parcel,
     get_cape_and_outflow_temp_from_sounding,
-    get_minimum_pressure_of_tropical_cyclone
+    get_potential_intensity_of_tropical_cyclone
 
 include("physicalconstants.jl")
 include("physicsfunctions.jl")
 include("rootfinding.jl")
 include("potentialintensity.jl")
+
+const ϵ = Dryair.R / Watervapor.R
 
 
 end
