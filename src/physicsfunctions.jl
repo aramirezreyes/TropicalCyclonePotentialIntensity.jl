@@ -89,8 +89,8 @@ Receive temperature in Kelvin, water vapor mixing ratio (unitless g/g) and press
 """
 function get_specific_entropy(temperature,mixing_ratio,pressure ; adjust_for_ice_phase = false)
     # Adjust for ice phase is a modified value of liquid water specific heat capacity to compensate for the lack of explicit ice phase when lifting a parcel(Personal communication with Kerry Emanuel on April 22 2022 - Argel Ramirez Reyes
-    alv = Liquidwater.Lv + (Watervapor.cp - Dryair.cp)*(temperature - 273.15f0u"K")
     adjusted_cl = adjust_for_ice_phase ? Liquidwater.cp - 1690u"J/kg/K" : Liquidwater.cp
+    alv = Liquidwater.Lv + (Watervapor.cp - adjusted_cl)*(temperature - 273.15f0u"K")
     vapor_pressure = get_partial_vapor_pressure(mixing_ratio,pressure)
     saturation_vapor_pressure = get_saturation_vapor_pressure(temperature)
     RH = min(vapor_pressure/saturation_vapor_pressure,1.0)

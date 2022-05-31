@@ -1,7 +1,7 @@
 """
     get_buoyancy_of_lifted_parcel(tparcel,rparcel,pparcel,t,r,p,ptop=50)
 """
-function get_buoyancy_of_lifted_parcel(tparcel,rparcel,pparcel,t,r,p,ptop=50*unit(pparcel))
+function get_buoyancy_of_lifted_parcel(tparcel,rparcel,pparcel,t,r,p,ptop=59*unit(pparcel))
     n_valid_levels = findfirst(<(ptop),p)
     p = p[begin:n_valid_levels]
     t = t[begin:n_valid_levels]
@@ -11,14 +11,13 @@ function get_buoyancy_of_lifted_parcel(tparcel,rparcel,pparcel,t,r,p,ptop=50*uni
     parcel_vapor_pressure = get_partial_vapor_pressure(rparcel,pparcel)
     parcel_rh = min(parcel_vapor_pressure/parcel_sat_vapor_pressure  , 1.0)
     parcel_specific_entropy = get_specific_entropy(tparcel,rparcel,pparcel; adjust_for_ice_phase = true)
-    @show parcel_specific_entropy
-    @show parcel_vapor_pressure
-    @show parcel_sat_vapor_pressure
+    #@show parcel_specific_entropy
+    #@show parcel_vapor_pressure
+    #@show parcel_sat_vapor_pressure
     parcel_lcl = get_lifted_condensation_level(tparcel,parcel_rh,pparcel)
-    #@info parcel_lcl
-#    @show parcel_lcl
+    #@show parcel_lcl
     levels_below_lcl = findall(>=(parcel_lcl),p)
-    levels_above_lcl = findall(<(parcel_lcl),p)
+    levels_above_lcl = findall(pres -> ptop < pres < parcel_lcl,p)
     
     for level in levels_below_lcl
         tlifted = tparcel*(p[level]/pparcel)^(Dryair.R/Dryair.cp)
@@ -31,6 +30,7 @@ function get_buoyancy_of_lifted_parcel(tparcel,rparcel,pparcel,t,r,p,ptop=50*uni
     for level in levels_above_lcl
         initial_guess = t[level]
         target_value = parcel_specific_entropy
+        #@show target_value
         tlifted = find_root_newton_raphson(temp -> get_specific_entropy_emanuel(temp,rparcel,p[level]), temp -> ∂specific_entropy_∂temp_emanuel(temp,rparcel, p[level]); target_value, initial_guess)
         #@info level, tlifted
         saturation_vapor_pressure_lifted = get_saturation_vapor_pressure(tlifted)
@@ -70,17 +70,13 @@ function get_minimum_pressure_of_tropical_cyclone(sea_surface_temperature,sea_su
     average_virtual_temp = 0u"K"
     temp_ratio = 0.0
     niter = 1
-    #@info cape_env
+    #@show cape_env
     while (abs(pressure_at_rmax_old-pressure_at_rmax)) > 0.2u"hPa" && niter < 200
-       #   @info pressure_at_rmax
-       #@info cape_at_rmax
-       #@info saturation_cape_at_rmax
 #   ***  Find CAPE at radius of maximum winds   ***
 #       #this one depends on the pressure
-        
+        #pparcel-> cape(pparcel)
         pparcel_approx=min(pressure_at_rmax,1000.0u"hPa") #these two are the ones we are iterating over
-        rparcel_approx = epsilon*mixing_ratio[initial_level_for_lifting]*sea_surface_pressure / (pparcel*(epsilon+mixing_ratio[initial_level_for_lifting]) - mixing_ratio[initial_level_for_lifting]*sea_surface_pressure) #what in the name of god is this? it is not documented
-
+        rparcel_approx = epsilon*mixing_ratio[initial_level_for_lifting]*sea_surface_pressure / (pparcel_approx*(epsilon+mixing_ratio[initial_level_for_lifting]) - mixing_ratio[initial_level_for_lifting]*sea_surface_pressure) #what in the name of god is this? it is not documented
         cape_at_rmax, outflow_temp_at_rmax, index_level_of_neutral_buoyancy = get_cape_and_outflow_temp_from_sounding(tparcel,rparcel_approx,pparcel_approx,temperature,mixing_ratio,pressure)
         #
         #  ***  Find saturation CAPE at radius of maximum winds   ***
@@ -112,6 +108,9 @@ function get_minimum_pressure_of_tropical_cyclone(sea_surface_temperature,sea_su
         pressure_at_rmax = sea_surface_pressure*exp(-CAT / (Dryair.R * average_virtual_temp) )
 
         niter = niter + 1
+        #   @info pressure_at_rmax
+       #@show cape_at_rmax
+       #@show saturation_cape_at_rmax
     end
 
     reduction_factor=0.5(1.0 + 1.0/exponent_central_pressure)
@@ -145,9 +144,16 @@ function get_cape_and_outflow_temp_from_sounding(tparcel,rparcel,pparcel,t,r,p,p
         negative_area -= min(area,0.0*unit(area))
     end
     outflow_temp = t[level_neutral_buoyancy]
-    #Add buoyancy of parcel with respect to first level?
+    #Add buoyancy of parcel with respect to first level? (lcl may not be a level in the profile)
     parcel_buoyancy_area = Dryair.R *(pparcel - p[1])/(pparcel + p[1])
     positive_area += parcel_buoyancy_area*max(buoyancy_profile[1],0.0*unit(buoyancy_profile[1]))
     negative_area -= parcel_buoyancy_area*min(buoyancy_profile[1],0.0*unit(buoyancy_profile[1]))
-    return positive_area - negative_area, outflow_temp, level_neutral_buoyancy
+    #Add residual above inb and t0
+    ## This is unsafe, need to check for bounds
+    pres_neutral_buoyancy = (p[level_neutral_buoyancy + 1]*buoyancy_profile[level_neutral_buoyancy] - p[level_neutral_buoyancy]*buoyancy_profile[level_neutral_buoyancy + 1]) / (buoyancy_profile[level_neutral_buoyancy] - buoyancy_profile[level_neutral_buoyancy + 1]) 
+    residual_area = Dryair.R * buoyancy_profile[level_neutral_buoyancy]*(p[level_neutral_buoyancy] - pres_neutral_buoyancy)/(p[level_neutral_buoyancy] + pres_neutral_buoyancy)
+    
+    outflow_temp = (outflow_temp * (pres_neutral_buoyancy - p[level_neutral_buoyancy + 1]) + t[level_neutral_buoyancy + 1] * (p[level_neutral_buoyancy] - pres_neutral_buoyancy)) / (p[level_neutral_buoyancy] - p[level_neutral_buoyancy + 1])
+
+    return positive_area - negative_area + residual_area, outflow_temp, level_neutral_buoyancy
 end
